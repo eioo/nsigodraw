@@ -1,0 +1,9 @@
+@font-face {
+  font-family: 'cp437';
+  src: url('./fonts/cp437.ttf');
+  letter-spacing: -1px;
+}
+
+canvas {
+  letter-spacing: -1px;
+}
