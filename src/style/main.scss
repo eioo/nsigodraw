@@ -1,0 +1,18 @@
+@font-face {
+  font-family: 'IBM EGA8';
+  src: url('./fonts/PxPlus_IBM_EGA8.ttf');
+}
+
+canvas {
+  cursor: text;
+  letter-spacing: 1px;
+}
+
+.grid {
+  display: grid;
+
+  .palette {
+    display: grid;
+    grid-template-columns: 16px 16px;
+  }
+}
