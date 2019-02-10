@@ -1,22 +1,18 @@
 import keycode from 'keycode';
 import { ICharacter, IDirection } from '../types/types';
+import * as palette from './palette';
 
 const charArray: ICharacter[] = [];
 const fontSize = '16px';
-const fontFamily = 'IBM EGA8';
+const fontFamily = 'IBM VGA8';
 const tileW = 8;
 const tileH = 16;
 const tilesH = 80;
 const tilesV = 30;
-const blockOffsetY = 12; // Hack
+const blockOffsetY = 11;
 
 let canvas: HTMLCanvasElement;
 let ctx: CanvasRenderingContext2D;
-
-const brush = {
-  fgColor: 'white',
-  bgColor: 'black',
-};
 
 const cursor = {
   x: 3,
@@ -24,18 +20,19 @@ const cursor = {
 };
 
 export function init() {
+  palette.init();
   createCanvas();
+  window.oncontextmenu = e => e.preventDefault();
   window.onkeydown = handleKeyDown;
   requestAnimationFrame(mainLoop);
 }
 
 function createCanvas() {
-  canvas = document.createElement('canvas');
+  canvas = document.querySelector('.document > canvas') as HTMLCanvasElement;
   canvas.width = tilesH * tileW;
   canvas.height = tilesV * tileH;
   ctx = canvas.getContext('2d', { alpha: false }) as CanvasRenderingContext2D;
   ctx.imageSmoothingEnabled = false;
-  document.body.appendChild(canvas);
 }
 
 function mainLoop() {
@@ -162,8 +159,8 @@ function addCharacter(charRepr: string) {
     key: charRepr,
     x: cursor.x,
     y: cursor.y,
-    bgColor: brush.bgColor,
-    fgColor: brush.fgColor,
+    bgColor: palette.bgColor,
+    fgColor: palette.fgColor,
   };
 
   if (existing !== -1) {
@@ -186,15 +183,18 @@ function draw() {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   // Draw characters
-  ctx.fillStyle = 'white';
   ctx.font = `${fontSize} ${fontFamily}`;
 
   for (const char of charArray) {
+    ctx.fillStyle = char.bgColor;
+    ctx.fillText('\u{2588}', char.x * tileW, char.y * tileH + blockOffsetY);
+
+    ctx.fillStyle = char.fgColor;
     ctx.fillText(char.key, char.x * tileW, char.y * tileH + blockOffsetY);
   }
 
   // Cursor
   // Todo: inverse cursor color (ctx.globalCompositeOperation('lighten'))
-  ctx.fillStyle = brush.fgColor;
+  ctx.fillStyle = '#ffffff';
   ctx.fillRect(cursor.x * tileW, cursor.y * tileH + tileH - 2, tileW, 2);
 }

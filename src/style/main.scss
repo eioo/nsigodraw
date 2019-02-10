@@ -1,6 +1,14 @@
 @font-face {
-  font-family: 'IBM EGA8';
-  src: url('./fonts/PxPlus_IBM_EGA8.ttf');
+  font-family: 'IBM VGA8';
+  src: url('./fonts/PxPlus_IBM_VGA8.ttf');
+}
+
+body {
+  margin: 0px;
+}
+
+* {
+  font-family: Verdana, Geneva, sans-serif;
 }
 
 canvas {
@@ -9,10 +17,59 @@ canvas {
 }
 
 .grid {
+  width: 100vw;
+  height: 100vh;
   display: grid;
+  grid-template-columns: auto 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  grid-template-areas:
+    'sidebar document minimap'
+    'charset charset charset';
 
-  .palette {
+  .sidebar {
+    grid-area: sidebar;
+    padding-left: 15px;
+    padding-top: 10px;
+
+    [data-fg-color],
+    [data-bg-color] {
+      border: 1px solid gray;
+      height: 30px;
+      width: 30px;
+      margin-left: -5px;
+    }
+
+    [data-bg-color] {
+      position: relative;
+      margin-top: -20px;
+      margin-left: 5px;
+      z-index: -1;
+    }
+
+    .palette {
+      $boxSize: 16px;
+
+      display: grid;
+      grid-template-columns: repeat(2, $boxSize);
+      grid-template-rows: repeat(8, $boxSize);
+      grid-gap: 4px;
+      padding-top: 10px;
+
+      [data-palette-color] {
+        border: 1px solid gray;
+        padding: 1px;
+        background-color: attr(data-palette-color);
+      }
+    }
+  }
+
+  .document {
+    grid-area: document;
+    padding: 5px;
     display: grid;
-    grid-template-columns: 16px 16px;
+  }
+
+  .charset {
+    grid-area: charset;
   }
 }

@@ -5,9 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>nsigodraw</title>
-    <link rel="stylesheet" href="style/main.css" />
+    <link rel="stylesheet" href="style/main.scss" />
   </head>
   <body>
+    <div class="grid">
+      <div class="sidebar">
+        <div class="active-colors"></div>
+
+        <div class="palette"></div>
+      </div>
+
+      <div class="document">
+        <canvas></canvas>
+      </div>
+
+      <div class="charset">Footer goes here</div>
+    </div>
+
     <script src="app.ts"></script>
   </body>
 </html>
