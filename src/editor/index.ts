@@ -3,6 +3,7 @@ import { ICharacter, IDirection } from '../types/types';
 import * as palette from './palette';
 
 const charArray: ICharacter[] = [];
+const bgColor = '#000000';
 const fontSize = '16px';
 const fontFamily = 'IBM VGA8';
 const tileW = 8;
@@ -155,6 +156,16 @@ function getCharAtCursor(): ICharacter | undefined {
 
 function addCharacter(charRepr: string) {
   const existing = getCharIndexAtPos(cursor.x, cursor.y);
+
+  // To-do: Glitch with full size blocks
+  if (
+    charRepr === '\u{2588}' &&
+    palette.fgColor === bgColor &&
+    existing !== -1
+  ) {
+    return charArray.splice(existing, 1);
+  }
+
   const character: ICharacter = {
     key: charRepr,
     x: cursor.x,
@@ -179,7 +190,7 @@ function removeCharacterAtCursor() {
 }
 
 function draw() {
-  ctx.fillStyle = 'black';
+  ctx.fillStyle = bgColor;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   // Draw characters
