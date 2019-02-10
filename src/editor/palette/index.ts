@@ -38,6 +38,13 @@ export class Palette {
     activeEl.appendChild(this.fgEl);
     activeEl.appendChild(this.bgEl);
 
+    activeEl.onclick = () => {
+      const oldFg = this.fgColor;
+      const oldBg = this.bgColor;
+      this.setFgColor(oldBg);
+      this.setBgColor(oldFg);
+    };
+
     // Setup palette colors
     defaultPalette.forEach(color => {
       const colorEl = document.createElement('div');
