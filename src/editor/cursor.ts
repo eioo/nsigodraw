@@ -24,11 +24,11 @@ export class Cursor {
   }
 
   public moveTo(pos: { x?: number; y?: number }) {
-    if (pos.x) {
+    if (pos.x !== undefined) {
       this.x = pos.x;
     }
 
-    if (pos.y) {
+    if (pos.y !== undefined) {
       this.y = pos.y;
     }
   }
