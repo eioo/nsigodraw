@@ -5,6 +5,7 @@
   "main": "app.ts",
   "license": "MIT",
   "scripts": {
+    "build": "parcel build src/index.html",
     "start": "parcel src/index.html"
   },
   "devDependencies": {
