@@ -1,3 +1,5 @@
+import { Editor } from '..';
+
 const defaultPalette = [
   '#000000',
   '#575757',
@@ -17,65 +19,60 @@ const defaultPalette = [
   '#FFFFFF',
 ];
 
-export let fgColor = defaultPalette[14]; // #ABABAB
-export let bgColor = defaultPalette[0]; // #000000
+export class Palette {
+  public fgColor = defaultPalette[14]; // #ABABAB
+  public bgColor = defaultPalette[0]; // #000000
+  private fgEl: HTMLDivElement;
+  private bgEl: HTMLDivElement;
 
-let fgEl: HTMLDivElement;
-let bgEl: HTMLDivElement;
+  constructor(private editor: Editor) {
+    const activeEl = document.querySelector('.active-colors') as HTMLDivElement;
+    const paletteEl = document.querySelector('.palette') as HTMLDivElement;
 
-export function init() {
-  const activeEl = document.querySelector('.active-colors') as HTMLDivElement;
-  const paletteEl = document.querySelector('.palette') as HTMLDivElement;
+    // Setup active colors
+    this.fgEl = document.createElement('div');
+    this.bgEl = document.createElement('div');
+    this.setFgColor(this.fgColor);
+    this.setBgColor(this.bgColor);
+    activeEl.appendChild(this.fgEl);
+    activeEl.appendChild(this.bgEl);
 
-  // Setup active colors
-  fgEl = document.createElement('div');
-  bgEl = document.createElement('div');
-  setFgColor(fgColor);
-  setBgColor(bgColor);
-  activeEl.appendChild(fgEl);
-  activeEl.appendChild(bgEl);
+    // Setup palette colors
+    defaultPalette.forEach(color => {
+      const colorEl = document.createElement('div');
+      colorEl.setAttribute('data-palette-color', color);
+      colorEl.style.background = color;
+      colorEl.onmousedown = e => this.handlePaletteClick(e, color);
 
-  // Setup palette colors
-  defaultPalette.forEach(color => {
-    const colorEl = document.createElement('div');
-    colorEl.setAttribute('data-palette-color', color);
-    colorEl.style.background = color;
-    colorEl.onmousedown = e => handlePaletteClick(e, color);
-
-    paletteEl.appendChild(colorEl);
-  });
-}
-
-// To-do: not sure if needed
-function getPaletteColor(index: number) {
-  const element = document.querySelectorAll('[data-palette-color]')[index];
-  return element.getAttribute('data-palette-color');
-}
-
-function setFgColor(color: string) {
-  fgColor = color;
-  fgEl.setAttribute('data-fg-color', color);
-  fgEl.style.background = color;
-
-  console.log('Primary color changed:', color);
-}
-
-function setBgColor(color: string) {
-  bgColor = color;
-  bgEl.setAttribute('data-bg-color', color);
-  bgEl.style.background = color;
-
-  console.log('Secondary color changed:', color);
-}
-
-function handlePaletteClick(event: MouseEvent, color: string) {
-  // Left button
-  if (event.button === 0) {
-    return setFgColor(color);
+      paletteEl.appendChild(colorEl);
+    });
   }
 
-  // Right button
-  if (event.button === 2) {
-    setBgColor(color);
+  private setFgColor(color: string) {
+    this.fgColor = color;
+    this.fgEl.setAttribute('data-fg-color', color);
+    this.fgEl.style.background = color;
+
+    console.log('Primary color changed:', color);
+  }
+
+  private setBgColor(color: string) {
+    this.bgColor = color;
+    this.bgEl.setAttribute('data-bg-color', color);
+    this.bgEl.style.background = color;
+
+    console.log('Secondary color changed:', color);
+  }
+
+  private handlePaletteClick(event: MouseEvent, color: string) {
+    // Left button
+    if (event.button === 0) {
+      return this.setFgColor(color);
+    }
+
+    // Right button
+    if (event.button === 2) {
+      this.setBgColor(color);
+    }
   }
 }

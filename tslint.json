@@ -5,6 +5,11 @@
     "object-literal-sort-keys": false,
     "no-console": {
       "severity": "off"
+    },
+    "no-this-assignment": {
+      "options": {
+        "allow-destructuring": true
+      }
     }
   }
 }

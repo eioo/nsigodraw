@@ -1,211 +1,104 @@
-import keycode from 'keycode';
-import { ICharacter, IDirection } from '../types/types';
-import * as palette from './palette';
+import { ICharacter } from '../types/types';
+import { Charsets } from './charsets';
+import { Cursor } from './cursor';
+import { KeyHandler } from './keyHandler';
+import { Palette } from './palette';
 
-const charArray: ICharacter[] = [];
-const bgColor = '#000000';
-const fontSize = '16px';
-const fontFamily = 'IBM VGA8';
-const tileW = 8;
-const tileH = 16;
-const tilesH = 80;
-const tilesV = 30;
-const blockOffsetY = 11;
+export class Editor {
+  public palette: Palette;
+  public charsets: Charsets;
+  public keyHandler: KeyHandler;
+  public cursor: Cursor;
 
-let canvas: HTMLCanvasElement;
-let ctx: CanvasRenderingContext2D;
+  public canvas: HTMLCanvasElement;
+  public ctx: CanvasRenderingContext2D;
 
-const cursor = {
-  x: 3,
-  y: 1,
-};
+  public charArray: ICharacter[] = [];
+  public documentBgColor = '#000000';
+  public cursorColor = '#ffffff';
+  public fontSize = '16px';
+  public fontFamily = 'IBM VGA8';
+  public tileW = 8;
+  public tileH = 16;
+  public tilesH = 80;
+  public tilesV = 30;
+  public blockOffsetY = 12;
 
-export function init() {
-  palette.init();
-  createCanvas();
-  window.oncontextmenu = e => e.preventDefault();
-  window.onkeydown = handleKeyDown;
-  requestAnimationFrame(mainLoop);
-}
+  constructor() {
+    this.keyHandler = new KeyHandler(this);
+    this.cursor = new Cursor(this);
+    this.palette = new Palette(this);
+    this.charsets = new Charsets(this);
 
-function createCanvas() {
-  canvas = document.querySelector('.document > canvas') as HTMLCanvasElement;
-  canvas.width = tilesH * tileW;
-  canvas.height = tilesV * tileH;
-  ctx = canvas.getContext('2d', { alpha: false }) as CanvasRenderingContext2D;
-  ctx.imageSmoothingEnabled = false;
-}
-
-function mainLoop() {
-  requestAnimationFrame(mainLoop);
-  draw();
-}
-
-function handleKeyDown(e: KeyboardEvent) {
-  if (!keycode.isEventKey(e, 'F5') && !keycode.isEventKey(e, 'F12')) {
-    e.preventDefault();
+    this.init();
   }
 
-  let controlKey = false;
-
-  // Debug
-  console.log('Key down:', keycode(e));
-
-  // Cursor movement
-  switch (keycode(e)) {
-    case 'left':
-      controlKey = true;
-      moveCursor('left');
-      break;
-
-    case 'right':
-      controlKey = true;
-      moveCursor('right');
-      break;
-
-    case 'up':
-      controlKey = true;
-      moveCursor('up');
-      break;
-
-    case 'down':
-      controlKey = true;
-      moveCursor('down');
-      break;
-
-    case 'space':
-      controlKey = true;
-      addCharacter(' ');
-      moveCursor('right');
-      break;
-
-    case 'enter':
-      controlKey = true;
-      cursor.x = 0;
-      moveCursor('down');
-      break;
-
-    // Edit keys
-    case 'backspace':
-      controlKey = true;
-      moveCursor('left');
-      removeCharacterAtCursor();
-      break;
-
-    case 'delete':
-      controlKey = true;
-      removeCharacterAtCursor();
-      break;
-
-    // Character keys
-    // Todo: Hard-coded. Add charsets you can select
-    case 'f1':
-      controlKey = true;
-      addCharacter('\u{2591}');
-      moveCursor('right');
-      break;
-
-    case 'f2':
-      controlKey = true;
-      addCharacter('\u{2592}');
-      moveCursor('right');
-      break;
-
-    case 'f3':
-      controlKey = true;
-      addCharacter('\u{2593}');
-      moveCursor('right');
-      break;
-
-    case 'f4':
-      controlKey = true;
-      addCharacter('\u{2588}');
-      moveCursor('right');
-      break;
+  public init() {
+    this.createCanvas();
+    window.oncontextmenu = e => e.preventDefault();
+    window.onkeydown = this.keyHandler.handleKeyDown;
+    requestAnimationFrame(this.draw);
   }
 
-  const validKey = e.key.length === 1;
-
-  if (!controlKey && validKey && e.key) {
-    addCharacter(e.key);
-    moveCursor('right');
-  }
-}
-
-function moveCursor(direction: IDirection) {
-  const dir = direction.toLowerCase();
-
-  if (dir === 'left' && cursor.x !== 0) {
-    cursor.x -= 1;
-  } else if (dir === 'right' && cursor.x !== tilesH - 1) {
-    cursor.x += 1;
-  } else if (dir === 'up' && cursor.y !== 0) {
-    cursor.y -= 1;
-  } else if (dir === 'down' && cursor.y !== tilesV - 1) {
-    cursor.y += 1;
-  }
-}
-
-function getCharIndexAtPos(x: number, y: number) {
-  return charArray.findIndex(c => c.x === cursor.x && c.y === cursor.y);
-}
-
-function getCharAtCursor(): ICharacter | undefined {
-  return charArray.find(c => c.x === cursor.x && c.y === cursor.y);
-}
-
-function addCharacter(charRepr: string) {
-  const existing = getCharIndexAtPos(cursor.x, cursor.y);
-
-  // To-do: Glitch with full size blocks
-  if (
-    charRepr === '\u{2588}' &&
-    palette.fgColor === bgColor &&
-    existing !== -1
-  ) {
-    return charArray.splice(existing, 1);
+  public getCharIndexAtPos(x: number, y: number) {
+    return this.charArray.findIndex(c => c.x === x && c.y === y);
   }
 
-  const character: ICharacter = {
-    key: charRepr,
-    x: cursor.x,
-    y: cursor.y,
-    bgColor: palette.bgColor,
-    fgColor: palette.fgColor,
+  public addCharacter = (charRepr: string) => {
+    const { cursor, palette } = this;
+    const existing = this.getCharIndexAtPos(cursor.x, cursor.y);
+
+    const character: ICharacter = {
+      key: charRepr,
+      x: cursor.x,
+      y: cursor.y,
+      bgColor: palette.bgColor,
+      fgColor: palette.fgColor,
+    };
+
+    if (existing !== -1) {
+      this.charArray[existing] = character;
+    } else {
+      this.charArray.push(character);
+    }
   };
 
-  if (existing !== -1) {
-    charArray[existing] = character;
-  } else {
-    charArray.push(character);
-  }
-}
+  private createCanvas() {
+    const { tilesH, tilesV, tileH, tileW } = this;
 
-function removeCharacterAtCursor() {
-  const charIndex = getCharIndexAtPos(cursor.x, cursor.y);
-
-  if (charIndex !== -1) {
-    charArray.splice(charIndex, 1);
-  }
-}
-
-function draw() {
-  ctx.fillStyle = bgColor;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // Draw characters
-  ctx.font = `${fontSize} ${fontFamily}`;
-
-  for (const char of charArray) {
-    ctx.fillStyle = char.bgColor;
-    ctx.fillText('\u{2588}', char.x * tileW, char.y * tileH + blockOffsetY);
-
-    ctx.fillStyle = char.fgColor;
-    ctx.fillText(char.key, char.x * tileW, char.y * tileH + blockOffsetY);
+    this.canvas = document.querySelector(
+      '.document > canvas'
+    ) as HTMLCanvasElement;
+    this.canvas.width = tilesH * tileW;
+    this.canvas.height = tilesV * tileH;
+    this.ctx = this.canvas.getContext('2d', {
+      alpha: false,
+    }) as CanvasRenderingContext2D;
+    this.ctx.imageSmoothingEnabled = false;
   }
 
-  // Cursor
-  // Todo: inverse cursor color (ctx.globalCompositeOperation('lighten'))
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(cursor.x * tileW, cursor.y * tileH + tileH - 2, tileW, 2);
+  private draw = () => {
+    const { canvas, ctx, cursor, tileH, tileW, blockOffsetY } = this;
+
+    ctx.fillStyle = this.documentBgColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Draw characters
+    ctx.font = `${this.fontSize} ${this.fontFamily}`;
+
+    for (const char of this.charArray) {
+      ctx.fillStyle = char.bgColor;
+      ctx.fillRect(char.x * tileW, char.y * tileH, tileW, tileH);
+
+      ctx.fillStyle = char.fgColor;
+      ctx.fillText(char.key, char.x * tileW, char.y * tileH + blockOffsetY);
+    }
+
+    // Cursor
+    // Todo: inverse cursor color (ctx.globalCompositeOperation('lighten'))
+    ctx.fillStyle = this.cursorColor;
+    ctx.fillRect(cursor.x * tileW, cursor.y * tileH + tileH - 2, tileW, 2);
+
+    requestAnimationFrame(this.draw);
+  };
 }

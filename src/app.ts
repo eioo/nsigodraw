@@ -1,7 +1,7 @@
-import * as editor from './editor';
+import { Editor } from './editor';
 
 (() => {
-  editor.init();
+  const editor = new Editor();
   console.log('Editor started');
 })();
 
