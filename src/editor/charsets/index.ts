@@ -1,4 +1,5 @@
 import { Editor } from '..';
+import { $ } from '../../utils/querySelector';
 
 const charsets = [
   [
@@ -19,14 +20,13 @@ const charsets = [
 
 export class Charsets {
   private charsetIndex = 0;
-  private charsetEl = document.querySelector('.charset') as HTMLDivElement;
+  private charsetEl = $('.charset') as HTMLDivElement;
 
   constructor(private editor: Editor) {
     this.setCharset(0);
   }
 
   public getCharacter = (index: number) => {
-    console.log(index);
     const currentCharset = charsets[this.charsetIndex];
     return currentCharset[index];
   };
@@ -35,7 +35,7 @@ export class Charsets {
     this.charsetIndex = index;
     this.updateCharset();
 
-    console.log('charset loaded');
+    console.log('Charset loaded');
   }
 
   private updateCharset() {

@@ -1,4 +1,5 @@
 import { ICharacter } from '../types/types';
+import { $ } from '../utils/querySelector';
 import { Charsets } from './charsets';
 import { Cursor } from './cursor';
 import { KeyHandler } from './keyHandler';
@@ -29,7 +30,6 @@ export class Editor {
     this.cursor = new Cursor(this);
     this.palette = new Palette(this);
     this.charsets = new Charsets(this);
-
     this.init();
   }
 
@@ -66,11 +66,20 @@ export class Editor {
   private createCanvas() {
     const { tilesH, tilesV, tileH, tileW } = this;
 
-    this.canvas = document.querySelector(
-      '.document > canvas'
-    ) as HTMLCanvasElement;
+    this.canvas = $('.document > canvas') as HTMLCanvasElement;
     this.canvas.width = tilesH * tileW;
     this.canvas.height = tilesV * tileH;
+
+    this.canvas.onclick = e => {
+      const x = Math.floor(e.offsetX / tileW);
+      const y = Math.floor(e.offsetY / tileH);
+
+      this.cursor.moveTo({
+        x,
+        y,
+      });
+    };
+
     this.ctx = this.canvas.getContext('2d', {
       alpha: false,
     }) as CanvasRenderingContext2D;

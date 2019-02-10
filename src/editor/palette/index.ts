@@ -1,4 +1,5 @@
 import { Editor } from '..';
+import { $ } from '../../utils/querySelector';
 
 const defaultPalette = [
   '#000000',
@@ -26,8 +27,8 @@ export class Palette {
   private bgEl: HTMLDivElement;
 
   constructor(private editor: Editor) {
-    const activeEl = document.querySelector('.active-colors') as HTMLDivElement;
-    const paletteEl = document.querySelector('.palette') as HTMLDivElement;
+    const activeEl = $('.active-colors') as HTMLDivElement;
+    const paletteEl = $('.palette') as HTMLDivElement;
 
     // Setup active colors
     this.fgEl = document.createElement('div');
